@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Household Hub</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            border: none;
+            padding: 0;
+        }
+
+        select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .price-box {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #fcf8e3;
+            border-radius: 5px;
+            border: 1px solid #faebcc;
+        }
+
+        .silver-box {
+            background: #f2f2f2;
+            border: 1px solid #e0e0e0;
+        }
+
+        input[type="text"] {
+            width: 65%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #219150;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #fff;
+            margin: 8px 0;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .home-button {
+            background-color: #2980b9;
+            margin: 0 5px;
+        }
+
+        .home-button:hover {
+            background-color: #1c5980;
+        }
+
+        /* Styling for the WhatsApp Share Button */
+        .whatsapp-btn {
+            background-color: #25D366;
+            font-size: 0.9rem;
+            padding: 6px 12px;
+        }
+        
+        .whatsapp-btn:hover {
+            background-color: #1ebe57;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🏡 Household Hub</h1>
+
+    <div class="nav-buttons" style="text-align: center; margin-bottom: 20px;">
+        <button class="home-button" onclick="showHome()">Home</button>
+        <button class="home-button" onclick="showItems()">Item List</button>
+    </div>
+
+    <div id="home" class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>📈 Market Prices</h2>
+                <select id="city-select" onchange="fetchPrices()">
+                    <option value="MUMB">Mumbai</option>
+                    <option value="DELH">Delhi</option>
+                    <option value="CHEN">Chennai</option>
+                    <option selected value="BANG">Bangalore</option>
+                    <option value="HYDE">Hyderabad</option>
+                </select>
+            </div>
+            <div class="price-box">
+                <strong>Gold (24K - 10g):</strong> <span id="gold-price">Fetching...</span>
+            </div>
+            <div class="price-box silver-box">
+                <strong>Silver (1kg):</strong> <span id="silver-price">Fetching...</span>
+            </div>
+            <p style="font-size: 0.8rem; color: gray;">*Prices update based on city selection.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>🏠 Property & Responsibilities</h2>
+            </div>
+            <ul>
+                <li><strong>Home Loan EMI:</strong> Due on 5th</li>
+                <li><strong>Electricity Bill:</strong> Check on 10th</li>
+                <li><strong>Maintenance:</strong> Paid for this month</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="list" style="display: none;" class="container">
+        <div id="list-card" class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+                <h2>🛒 Groceries & Vegetables</h2>
+                <button class="whatsapp-btn" onclick="shareToWhatsApp()">Share</button>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="item-input" placeholder="e.g., Onions, Dal, Milk...">
+                <button onclick="addItem()">Add Item</button>
+            </div>
+            <ul id="shopping-list">
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const METALS_API_KEY = "DEMO_MODE";
+        async function fetchPrices() {
+            const city = document.getElementById('city-select').value;
+            document.getElementById('gold-price').innerText = "Fetching...";
+            document.getElementById('silver-price').innerText = "Fetching...";
+
+            try {
+                let goldPriceInrPerOz;
+                let silverPriceInrPerOz;
+
+                if (METALS_API_KEY !== "DEMO_MODE") {
+                    const metalsRes = await fetch(`https://metals-api.com/api/latest?access_key=${METALS_API_KEY}&symbols=XAU-${city},XAG-${city}`);
+                    const metalsData = await metalsRes.json();
+                    const exchangeRes = await fetch('https://open.er-api.com/v6/latest/USD');
+                    const exchangeData = await exchangeRes.json();
+                    const inrRate = exchangeData.rates.INR;
+                    goldPriceInrPerOz = metalsData.rates[`XAU-${city}`] * inrRate;
+                    silverPriceInrPerOz = metalsData.rates[`XAG-${city}`] * inrRate;
+                } else {
+                    const goldRes = await fetch('https://api.gold-api.com/price/XAU');
+                    const goldData = await goldRes.json();
+                    const silverRes = await fetch('https://api.gold-api.com/price/XAG');
+                    const silverData = await silverRes.json();
+                    const exchangeRes = await fetch('https://open.er-api.com/v6/latest/USD');
+                    const exchangeData = await exchangeRes.json();
+                    const inrRate = exchangeData.rates.INR;
+
+                    const cityPremiums = {
+                        "MUMB": 1.0122, "DELH": 1.0120, "CHEN": 1.0140, "BANG": 1.0135, "HYDE": 1.0135
+                    };
+                    const localPremium = cityPremiums[city];
+
+                    goldPriceInrPerOz = goldData.price * inrRate * localPremium;
+                    silverPriceInrPerOz = silverData.price * inrRate * localPremium;
+                }
+
+                let goldPricePer10g = (goldPriceInrPerOz / 31.1035) * 10;
+                let silverPricePer1kg = (silverPriceInrPerOz / 31.1035) * 1000;
+
+                document.getElementById('gold-price').innerText = `₹${goldPricePer10g.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+                document.getElementById('silver-price').innerText = `₹${silverPricePer1kg.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+            } catch (error) {
+                console.error("Fetch error:", error);
+                document.getElementById('gold-price').innerText = "Unavailable";
+                document.getElementById('silver-price').innerText = "Unavailable";
+            }
+        }
+
+        let items = JSON.parse(localStorage.getItem('householdItems')) || [];
+        function renderList() {
+            const listElement = document.getElementById('shopping-list');
+            listElement.innerHTML = "";
+
+            items.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${item}</span> 
+                    <button class="delete-btn no-screenshot" onclick="deleteItem(${index})">Bought ✓</button>
+                `;
+                listElement.appendChild(li);
+            });
+        }
+
+        function addItem() {
+            const input = document.getElementById('item-input');
+            const newItem = input.value.trim();
+
+            if (newItem !== "") {
+                items.push(newItem);
+                localStorage.setItem('householdItems', JSON.stringify(items));
+                input.value = "";
+                renderList();
+            }
+        }
+
+        function deleteItem(index) {
+            items.splice(index, 1);
+            localStorage.setItem('householdItems', JSON.stringify(items));
+            renderList();
+        }
+
+        // --- NEW: WhatsApp Share Function ---
+        async function shareToWhatsApp() {
+            const listCard = document.getElementById('shopping-list');
+            
+            try {
+                // Take a screenshot of the specific card element
+                const canvas = await html2canvas(listCard, { 
+                    backgroundColor: "#ffffff",
+                    scale: 2 // Makes the image higher quality
+                });
+
+                // Convert the canvas into a JPG file
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'grocery-list.jpg', { type: 'image/jpeg' });
+                    
+                    // Check if the device supports file sharing (works on most mobile phones)
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Grocery List',
+                            text: 'Here is our updated shopping list!'
+                        });
+                    } else {
+                        // Fallback for Desktop computers: Download the image instead
+                        alert("Direct sharing is not supported on this device. The image will download, and you can attach it to WhatsApp Web.");
+                        const link = document.createElement('a');
+                        link.download = 'grocery-list.jpg';
+                        link.href = canvas.toDataURL('image/jpeg');
+                        link.click();
+                    }
+                }, 'image/jpeg');
+
+            } catch (error) {
+                console.error("Error generating image:", error);
+                alert("Could not generate image to share.");
+            }
+        }
+
+        fetchPrices();
+        renderList();
+
+        function showHome() {
+            document.getElementById('home').style.display = 'grid';
+            document.getElementById('list').style.display = 'none';
+        }
+        function showItems() {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('list').style.display = 'grid';
+        }
+    </script>
+</body>
+</html>
