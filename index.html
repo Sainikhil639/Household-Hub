@@ -82,11 +82,12 @@
             border: 1px solid #e0e0e0;
         }
 
-        input[type="text"] {
+        input[type="text"], input[type="number"], input[type="date"] {
             width: 65%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            box-sizing: border-box; /* Ensures padding doesn't break width */
         }
 
         button {
@@ -132,24 +133,53 @@
         .home-button {
             background-color: #2980b9;
             margin: 0 5px;
+            margin-bottom: 10px;
         }
 
         .home-button:hover {
             background-color: #1c5980;
         }
 
-        /* Styling for the WhatsApp Share Button */
         .whatsapp-btn {
             background-color: #25D366;
             font-size: 0.9rem;
             padding: 8px 12px;
             display: flex;
             align-items: center;
-            gap: 6px; /* Adds space between the icon and the text */
+            gap: 6px;
         }
         
         .whatsapp-btn:hover {
             background-color: #1ebe57;
+        }
+
+        /* Styling for the new Amortization Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+        th {
+            background-color: #2980b9;
+            color: white;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .summary-box {
+            background: #f4f7f6;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -159,8 +189,10 @@
     <h1>🏡 Household Hub</h1>
 
     <div class="nav-buttons" style="text-align: center; margin-bottom: 20px;">
-        <button class="home-button" onclick="showHome()"><i class="fa-solid fa-house"></i> Home</button>
-        <button class="home-button" onclick="showItems()"><i class="fa-solid fa-list"></i> Item List</button>
+        <button class="home-button" onclick="showTab('home')"><i class="fa-solid fa-house"></i> Home</button>
+        <button class="home-button" onclick="showTab('loan')"><i class="fa-solid fa-calculator"></i> Loan Calculator</button>
+        <button class="home-button" onclick="showTab('list')"><i class="fa-solid fa-list"></i> Item List</button>
+        
     </div>
 
     <div id="home" class="container">
@@ -189,9 +221,9 @@
                 <h2>🏠 Property & Responsibilities</h2>
             </div>
             <ul>
-                <li><strong>Home Loan EMI:</strong> Due on 5th</li>
+                <li><strong>Personal Loan EMI:</strong> Due on 5th</li>
                 <li><strong>Electricity Bill:</strong> Check on 10th</li>
-                <li><strong>Maintenance:</strong> Paid for this month</li>
+                <!-- <li><strong>Maintenance:</strong> Paid for this month</li> -->
             </ul>
         </div>
     </div>
@@ -211,7 +243,76 @@
         </div>
     </div>
 
+    <div id="loan" style="display: none;" class="container">
+        
+        <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+                <h2>💰 Loan EMI Calculator</h2>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label><strong>Loan Amount (₹):</strong></label><br>
+                    <input type="number" id="loan-amount" value="1212000" style="width: 100%;">
+                </div>
+                <div>
+                    <label><strong>Duration (Months):</strong></label><br>
+                    <input type="number" id="loan-duration" value="60" style="width: 100%;">
+                </div>
+                <div>
+                    <label><strong>Int. Rate (%):</strong></label><br>
+                    <input type="number" id="loan-rate" value="16.0" step="0.1" style="width: 100%;">
+                </div>
+                <div>
+                    <label><strong>Start Date:</strong></label><br>
+                    <input type="date" id="loan-date" style="width: 100%;">
+                </div>
+            </div>
+            <button onclick="calculateLoan()" style="width: 100%; margin-top: 20px; font-size: 1.1rem; background-color: #3498db;"><i class="fa-solid fa-calculator"></i> Calculate</button>
+        </div>
+
+        <div id="loan-results" class="card" style="grid-column: 1 / -1; display: none;">
+            <div class="card-header">
+                <h2>📊 Repayment Summary</h2>
+            </div>
+            
+            <div class="summary-box" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div><span style="color: gray;">Monthly Payment</span><br><strong id="res-emi" style="font-size: 1.2rem;">₹0</strong></div>
+                <div><span style="color: gray;">Total Interest Paid</span><br><strong id="res-interest" style="font-size: 1.2rem;">₹0</strong></div>
+                <div><span style="color: gray;">Total Payments</span><br><strong id="res-total" style="font-size: 1.2rem;">₹0</strong></div>
+                <div><span style="color: gray;">Pay-off Date</span><br><strong id="res-payoff" style="font-size: 1.2rem;">-</strong></div>
+            </div>
+
+            <h3 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">Amortization Table</h3>
+            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">#</th>
+                            <th>Payment</th>
+                            <th>Interest</th>
+                            <th>Principal</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="amortization-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
     <script>
+        function showTab(tabId) {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('list').style.display = 'none';
+            document.getElementById('loan').style.display = 'none';
+            
+            if(tabId === 'home') document.getElementById('home').style.display = 'grid';
+            else if(tabId === 'list') document.getElementById('list').style.display = 'grid';
+            else if(tabId === 'loan') document.getElementById('loan').style.display = 'grid';
+        }
+
         const METALS_API_KEY = "DEMO_MODE";
         async function fetchPrices() {
             const city = document.getElementById('city-select').value;
@@ -219,8 +320,7 @@
             document.getElementById('silver-price').innerText = "Fetching...";
 
             try {
-                let goldPriceInrPerOz;
-                let silverPriceInrPerOz;
+                let goldPriceInrPerOz, silverPriceInrPerOz;
 
                 if (METALS_API_KEY !== "DEMO_MODE") {
                     const metalsRes = await fetch(`https://metals-api.com/api/latest?access_key=${METALS_API_KEY}&symbols=XAU-${city},XAG-${city}`);
@@ -239,9 +339,7 @@
                     const exchangeData = await exchangeRes.json();
                     const inrRate = exchangeData.rates.INR;
 
-                    const cityPremiums = {
-                        "MUMB": 1.0122, "DELH": 1.0120, "CHEN": 1.0140, "BANG": 1.0135, "HYDE": 1.0135
-                    };
+                    const cityPremiums = { "MUMB": 1.0122, "DELH": 1.0120, "CHEN": 1.0140, "BANG": 1.0135, "HYDE": 1.0135 };
                     const localPremium = cityPremiums[city];
 
                     goldPriceInrPerOz = goldData.price * inrRate * localPremium;
@@ -254,7 +352,6 @@
                 document.getElementById('gold-price').innerText = `₹${goldPricePer10g.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
                 document.getElementById('silver-price').innerText = `₹${silverPricePer1kg.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
             } catch (error) {
-                console.error("Fetch error:", error);
                 document.getElementById('gold-price').innerText = "Unavailable";
                 document.getElementById('silver-price').innerText = "Unavailable";
             }
@@ -264,21 +361,15 @@
         function renderList() {
             const listElement = document.getElementById('shopping-list');
             listElement.innerHTML = "";
-
             items.forEach((item, index) => {
                 const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${item}</span> 
-                    <button class="delete-btn no-screenshot" onclick="deleteItem(${index})"><i class="fa-solid fa-trash-can"></i></button>
-                `;
+                li.innerHTML = `<span>${item}</span> <button class="delete-btn no-screenshot" onclick="deleteItem(${index})"><i class="fa-solid fa-trash-can"></i></button>`;
                 listElement.appendChild(li);
             });
         }
-
         function addItem() {
             const input = document.getElementById('item-input');
             const newItem = input.value.trim();
-
             if (newItem !== "") {
                 items.push(newItem);
                 localStorage.setItem('householdItems', JSON.stringify(items));
@@ -286,80 +377,98 @@
                 renderList();
             }
         }
-
         function deleteItem(index) {
             items.splice(index, 1);
             localStorage.setItem('householdItems', JSON.stringify(items));
             renderList();
         }
 
-        // --- WhatsApp Share Function ---
-        async function shareToWcchatsApp() {
+        async function shareToWhatsApp() {
             const listCard = document.getElementById('shopping-list');
-            
             try {
-                const canvas = await html2canvas(listCard, { 
-                    backgroundColor: "#ffffff",
-                    scale: 2 
-                });
-
+                const canvas = await html2canvas(listCard, { backgroundColor: "#ffffff", scale: 2 });
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], 'grocery-list.jpg', { type: 'image/jpeg' });
-                    
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            files: [file],
-                            title: 'Grocery List',
-                            text: 'Here is our updated shopping list!'
-                        });
+                        await navigator.share({ files: [file], title: 'Grocery List', text: 'Here is our updated shopping list!' });
                     } else {
-                        alert("Direct sharing is not supported on this device. The image will download, and you can attach it to WhatsApp Web.");
+                        alert("Direct sharing is not supported on this device. The image will download.");
                         const link = document.createElement('a');
                         link.download = 'grocery-list.jpg';
                         link.href = canvas.toDataURL('image/jpeg');
                         link.click();
                     }
                 }, 'image/jpeg');
-
             } catch (error) {
-                console.error("Error generating image:", error);
                 alert("Could not generate image to share.");
             }
         }
 
-        // --- Direct Text to WhatsApp Function ---
-        function shareToWhatsApp() {
-            // Check if the list is empty
-            if (items.length === 0) {
-                alert("The list is empty! Add some items first.");
+        function calculateLoan() {
+            let principal = parseFloat(document.getElementById('loan-amount').value);
+            let months = parseInt(document.getElementById('loan-duration').value);
+            let annualRate = parseFloat(document.getElementById('loan-rate').value);
+            let startDateStr = document.getElementById('loan-date').value;
+
+            if (isNaN(principal) || isNaN(months) || isNaN(annualRate) || principal <= 0 || months <= 0) {
+                alert("Please enter valid positive numbers for the loan details.");
                 return;
             }
 
-            // Format the items into a neat text list with emojis
-            let listText = items.map(item => `✅ ${item}`).join('\n');
-            let message = `🛒 *Household Hub Grocery List:*\n\n${listText}`;
+            let monthlyRate = annualRate / 12 / 100;
+            let emi = 0;
             
-            // Encode the text so it can be sent in a web link safely
-            let encodedMessage = encodeURIComponent(message);
-            
-            // Create the direct WhatsApp link
-            let whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-            
-            // Open WhatsApp directly
-            window.open(whatsappUrl, '_blank');
+            if (monthlyRate === 0) {
+                emi = principal / months;
+            } else {
+                emi = principal * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
+            }
+
+            let totalPayment = emi * months;
+            let totalInterest = totalPayment - principal;
+
+            const currencyConfig = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+            document.getElementById('res-emi').innerText = `₹${emi.toLocaleString('en-IN', currencyConfig)}`;
+            document.getElementById('res-interest').innerText = `₹${totalInterest.toLocaleString('en-IN', currencyConfig)}`;
+            document.getElementById('res-total').innerText = `₹${totalPayment.toLocaleString('en-IN', currencyConfig)}`;
+
+            if(startDateStr) {
+                let startDate = new Date(startDateStr);
+                startDate.setMonth(startDate.getMonth() + months);
+                document.getElementById('res-payoff').innerText = startDate.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' });
+            } else {
+                document.getElementById('res-payoff').innerText = "N/A";
+            }
+
+            let balance = principal;
+            let tbody = document.getElementById('amortization-body');
+            tbody.innerHTML = ""; 
+
+            for (let i = 1; i <= months; i++) {
+                let interestPayment = balance * monthlyRate;
+                let principalPayment = emi - interestPayment;
+                balance -= principalPayment;
+                
+                if (balance < 0) balance = 0; 
+
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align: center;">${i.toString().padStart(2, '0')}</td>
+                    <td>${emi.toLocaleString('en-IN', currencyConfig)}</td>
+                    <td>${interestPayment.toLocaleString('en-IN', currencyConfig)}</td>
+                    <td>${principalPayment.toLocaleString('en-IN', currencyConfig)}</td>
+                    <td>${balance.toLocaleString('en-IN', currencyConfig)}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+            document.getElementById('loan-results').style.display = 'block';
         }
 
         fetchPrices();
         renderList();
+        
+        document.getElementById('loan-date').valueAsDate = new Date();
 
-        function showHome() {
-            document.getElementById('home').style.display = 'grid';
-            document.getElementById('list').style.display = 'none';
-        }
-        function showItems() {
-            document.getElementById('home').style.display = 'none';
-            document.getElementById('list').style.display = 'grid';
-        }
     </script>
 </body>
 </html>
