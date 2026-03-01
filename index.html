@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Household Hub</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -82,12 +83,15 @@
             border: 1px solid #e0e0e0;
         }
 
-        input[type="text"], input[type="number"], input[type="date"] {
+        input[type="text"],
+        input[type="number"],
+        input[type="date"] {
             width: 65%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box; /* Ensures padding doesn't break width */
+            box-sizing: border-box;
+            /* Ensures padding doesn't break width */
         }
 
         button {
@@ -148,7 +152,7 @@
             align-items: center;
             gap: 6px;
         }
-        
+
         .whatsapp-btn:hover {
             background-color: #1ebe57;
         }
@@ -160,6 +164,7 @@
             font-size: 0.9rem;
             text-align: right;
         }
+
         th {
             background-color: #2980b9;
             color: white;
@@ -167,13 +172,16 @@
             position: sticky;
             top: 0;
         }
+
         td {
             padding: 10px;
             border-bottom: 1px solid #eee;
         }
+
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         .summary-box {
             background: #f4f7f6;
             padding: 15px;
@@ -190,9 +198,10 @@
 
     <div class="nav-buttons" style="text-align: center; margin-bottom: 20px;">
         <button class="home-button" onclick="showTab('home')"><i class="fa-solid fa-house"></i> Home</button>
-        <button class="home-button" onclick="showTab('loan')"><i class="fa-solid fa-calculator"></i> Loan Calculator</button>
+        <button class="home-button" onclick="showTab('loan')"><i class="fa-solid fa-calculator"></i> Loan
+            Calculator</button>
         <button class="home-button" onclick="showTab('list')"><i class="fa-solid fa-list"></i> Item List</button>
-        
+
     </div>
 
     <div id="home" class="container">
@@ -232,19 +241,20 @@
         <div id="list-card" class="card" style="grid-column: 1 / -1;">
             <div class="card-header">
                 <h2>🛒 Groceries & Vegetables</h2>
-                <button class="whatsapp-btn" onclick="shareToWhatsApp()"><i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Share</button>
+                <button class="whatsapp-btn" onclick="shareToWhatsApp()"><i class="fa-brands fa-whatsapp"
+                        style="font-size: 1.2rem;"></i> Share</button>
             </div>
             <div style="display: flex; gap: 10px;">
                 <input type="text" id="item-input" placeholder="e.g., Onions, Dal, Milk...">
                 <button onclick="addItem()"><i class="fa-solid fa-plus"></i> Add</button>
             </div>
-            <ul id="shopping-list">
+            <ul style="overflow-y: auto; height: 50vh;" id="shopping-list">
             </ul>
         </div>
     </div>
 
     <div id="loan" style="display: none;" class="container">
-        
+
         <div class="card" style="grid-column: 1 / -1;">
             <div class="card-header">
                 <h2>💰 Loan EMI Calculator</h2>
@@ -267,19 +277,25 @@
                     <input type="date" id="loan-date" style="width: 100%;">
                 </div>
             </div>
-            <button onclick="calculateLoan()" style="width: 100%; margin-top: 20px; font-size: 1.1rem; background-color: #3498db;"><i class="fa-solid fa-calculator"></i> Calculate</button>
+            <button onclick="calculateLoan()"
+                style="width: 100%; margin-top: 20px; font-size: 1.1rem; background-color: #3498db;"><i
+                    class="fa-solid fa-calculator"></i> Calculate</button>
         </div>
 
         <div id="loan-results" class="card" style="grid-column: 1 / -1; display: none;">
             <div class="card-header">
                 <h2>📊 Repayment Summary</h2>
             </div>
-            
+
             <div class="summary-box" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div><span style="color: gray;">Monthly Payment</span><br><strong id="res-emi" style="font-size: 1.2rem;">₹0</strong></div>
-                <div><span style="color: gray;">Total Interest Paid</span><br><strong id="res-interest" style="font-size: 1.2rem;">₹0</strong></div>
-                <div><span style="color: gray;">Total Payments</span><br><strong id="res-total" style="font-size: 1.2rem;">₹0</strong></div>
-                <div><span style="color: gray;">Pay-off Date</span><br><strong id="res-payoff" style="font-size: 1.2rem;">-</strong></div>
+                <div><span style="color: gray;">Monthly Payment</span><br><strong id="res-emi"
+                        style="font-size: 1.2rem;">₹0</strong></div>
+                <div><span style="color: gray;">Total Interest Paid</span><br><strong id="res-interest"
+                        style="font-size: 1.2rem;">₹0</strong></div>
+                <div><span style="color: gray;">Total Payments</span><br><strong id="res-total"
+                        style="font-size: 1.2rem;">₹0</strong></div>
+                <div><span style="color: gray;">Pay-off Date</span><br><strong id="res-payoff"
+                        style="font-size: 1.2rem;">-</strong></div>
             </div>
 
             <h3 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">Amortization Table</h3>
@@ -295,7 +311,7 @@
                         </tr>
                     </thead>
                     <tbody id="amortization-body">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -307,10 +323,10 @@
             document.getElementById('home').style.display = 'none';
             document.getElementById('list').style.display = 'none';
             document.getElementById('loan').style.display = 'none';
-            
-            if(tabId === 'home') document.getElementById('home').style.display = 'grid';
-            else if(tabId === 'list') document.getElementById('list').style.display = 'grid';
-            else if(tabId === 'loan') document.getElementById('loan').style.display = 'grid';
+
+            if (tabId === 'home') document.getElementById('home').style.display = 'grid';
+            else if (tabId === 'list') document.getElementById('list').style.display = 'grid';
+            else if (tabId === 'loan') document.getElementById('loan').style.display = 'grid';
         }
 
         const METALS_API_KEY = "DEMO_MODE";
@@ -417,7 +433,7 @@
 
             let monthlyRate = annualRate / 12 / 100;
             let emi = 0;
-            
+
             if (monthlyRate === 0) {
                 emi = principal / months;
             } else {
@@ -432,7 +448,7 @@
             document.getElementById('res-interest').innerText = `₹${totalInterest.toLocaleString('en-IN', currencyConfig)}`;
             document.getElementById('res-total').innerText = `₹${totalPayment.toLocaleString('en-IN', currencyConfig)}`;
 
-            if(startDateStr) {
+            if (startDateStr) {
                 let startDate = new Date(startDateStr);
                 startDate.setMonth(startDate.getMonth() + months);
                 document.getElementById('res-payoff').innerText = startDate.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' });
@@ -442,14 +458,14 @@
 
             let balance = principal;
             let tbody = document.getElementById('amortization-body');
-            tbody.innerHTML = ""; 
+            tbody.innerHTML = "";
 
             for (let i = 1; i <= months; i++) {
                 let interestPayment = balance * monthlyRate;
                 let principalPayment = emi - interestPayment;
                 balance -= principalPayment;
-                
-                if (balance < 0) balance = 0; 
+
+                if (balance < 0) balance = 0;
 
                 let tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -466,9 +482,10 @@
 
         fetchPrices();
         renderList();
-        
+
         document.getElementById('loan-date').valueAsDate = new Date();
 
     </script>
 </body>
+
 </html>
