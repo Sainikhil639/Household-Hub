@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Household Hub</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -119,8 +121,8 @@
 
         .delete-btn {
             background-color: #e74c3c;
-            padding: 6px 10px;
-            font-size: 0.9rem;
+            padding: 8px 12px;
+            font-size: 1rem;
         }
 
         .delete-btn:hover {
@@ -140,7 +142,10 @@
         .whatsapp-btn {
             background-color: #25D366;
             font-size: 0.9rem;
-            padding: 6px 12px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px; /* Adds space between the icon and the text */
         }
         
         .whatsapp-btn:hover {
@@ -154,8 +159,8 @@
     <h1>🏡 Household Hub</h1>
 
     <div class="nav-buttons" style="text-align: center; margin-bottom: 20px;">
-        <button class="home-button" onclick="showHome()">Home</button>
-        <button class="home-button" onclick="showItems()">Item List</button>
+        <button class="home-button" onclick="showHome()"><i class="fa-solid fa-house"></i> Home</button>
+        <button class="home-button" onclick="showItems()"><i class="fa-solid fa-list"></i> Item List</button>
     </div>
 
     <div id="home" class="container">
@@ -195,11 +200,11 @@
         <div id="list-card" class="card" style="grid-column: 1 / -1;">
             <div class="card-header">
                 <h2>🛒 Groceries & Vegetables</h2>
-                <button class="whatsapp-btn" onclick="shareToWhatsApp()">Share</button>
+                <button class="whatsapp-btn" onclick="shareToWhatsApp()"><i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Share</button>
             </div>
             <div style="display: flex; gap: 10px;">
                 <input type="text" id="item-input" placeholder="e.g., Onions, Dal, Milk...">
-                <button onclick="addItem()">Add Item</button>
+                <button onclick="addItem()"><i class="fa-solid fa-plus"></i> Add</button>
             </div>
             <ul id="shopping-list">
             </ul>
@@ -264,7 +269,7 @@
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span>${item}</span> 
-                    <button class="delete-btn no-screenshot" onclick="deleteItem(${index})">Bought ✓</button>
+                    <button class="delete-btn no-screenshot" onclick="deleteItem(${index})"><i class="fa-solid fa-trash-can"></i></button>
                 `;
                 listElement.appendChild(li);
             });
@@ -288,22 +293,19 @@
             renderList();
         }
 
-        // --- NEW: WhatsApp Share Function ---
-        async function shareToWhatsApp() {
+        // --- WhatsApp Share Function ---
+        async function shareToWcchatsApp() {
             const listCard = document.getElementById('shopping-list');
             
             try {
-                // Take a screenshot of the specific card element
                 const canvas = await html2canvas(listCard, { 
                     backgroundColor: "#ffffff",
-                    scale: 2 // Makes the image higher quality
+                    scale: 2 
                 });
 
-                // Convert the canvas into a JPG file
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], 'grocery-list.jpg', { type: 'image/jpeg' });
                     
-                    // Check if the device supports file sharing (works on most mobile phones)
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         await navigator.share({
                             files: [file],
@@ -311,7 +313,6 @@
                             text: 'Here is our updated shopping list!'
                         });
                     } else {
-                        // Fallback for Desktop computers: Download the image instead
                         alert("Direct sharing is not supported on this device. The image will download, and you can attach it to WhatsApp Web.");
                         const link = document.createElement('a');
                         link.download = 'grocery-list.jpg';
@@ -324,6 +325,28 @@
                 console.error("Error generating image:", error);
                 alert("Could not generate image to share.");
             }
+        }
+
+        // --- Direct Text to WhatsApp Function ---
+        function shareToWhatsApp() {
+            // Check if the list is empty
+            if (items.length === 0) {
+                alert("The list is empty! Add some items first.");
+                return;
+            }
+
+            // Format the items into a neat text list with emojis
+            let listText = items.map(item => `✅ ${item}`).join('\n');
+            let message = `🛒 *Household Hub Grocery List:*\n\n${listText}`;
+            
+            // Encode the text so it can be sent in a web link safely
+            let encodedMessage = encodeURIComponent(message);
+            
+            // Create the direct WhatsApp link
+            let whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            
+            // Open WhatsApp directly
+            window.open(whatsappUrl, '_blank');
         }
 
         fetchPrices();
