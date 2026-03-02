@@ -90,7 +90,7 @@
         input[type="text"],
         input[type="number"],
         input[type="date"] {
-            width: 100%;
+            width: 75%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -125,6 +125,18 @@
             align-items: center;
             border-radius: 4px;
             border: 1px solid #ddd;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        li>li>div:first-child {
+            flex-grow: 1;
+            min-width: 0;
+            margin-right: 10px;
+        }
+
+        li>div:last-child {
+            flex-shrink: 0;
         }
 
         .delete-btn {
@@ -232,8 +244,10 @@
         .toggle-paid-btn {
             background-color: #27ae60;
         }
+        .toggle-paid-btn:hover {
+            background-color: #219150;
+        }
 
-        /* Modal for editing */
         .modal {
             display: none;
             position: fixed;
@@ -253,6 +267,29 @@
             width: 80%;
             max-width: 400px;
             border-radius: 8px;
+        }
+
+        #home-responsibilities-list li {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: nowrap;
+        }
+
+        #home-responsibilities-list li strong {
+            flex-grow: 1;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            padding-right: 15px;
+        }
+
+        #home-responsibilities-list li span {
+            font-size: 0.85rem;
+            color: #e74c3c;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
     </style>
 </head>
@@ -310,7 +347,7 @@
                 <input type="number" id="bill-amount" placeholder="Amount (₹)">
                 <input type="date" id="bill-date">
             </div>
-            <button onclick="addBill()" style="width: 100%;"><i class="fa-solid fa-plus"></i> Add Monthly Bill</button>
+            <button onclick="addBill()" style="width: 100%; margin-top: 20px; font-size: 1.1rem; background-color: #3498db;"><i class="fa-solid fa-plus"></i> Add Monthly Bill</button>
             <ul style="overflow-y: auto; max-height: 50vh; margin-top: 20px;" id="bills-list">
             </ul>
         </div>
@@ -397,14 +434,14 @@
             <label>Amount:</label><br><input type="number" id="edit-bill-amount" style="margin-bottom: 10px;"><br>
             <label>Date:</label><br><input type="date" id="edit-bill-date" style="margin-bottom: 10px;"><br>
             <div style="display: flex; justify-content: space-between; margin-top: 15px;">
-                <button onclick="saveEditBill()">Save Changes</button>
                 <button style="background-color: gray;" onclick="closeEditModal()">Cancel</button>
+                <button onclick="saveEditBill()">Save Changes</button>
             </div>
         </div>
     </div>
 
     <footer style="text-align: center; margin-top: 30px; color: gray; font-size: 0.8rem;">
-        &copy; 2024 Household Hub. All rights reserved. | Developed by Nikhil ❤️🖤 ANU
+        &copy; Developed by Nikhil❤️
     </footer>
 
     <script>
@@ -449,7 +486,7 @@
                         <span style="font-weight: 500;">${itemName}</span> 
                         <div style="display: flex; gap: 5px;">
                             <button class="no-screenshot ${isBought ? 'toggle-paid-btn' : 'toggle-btn'}" onclick="toggleGroceryBought(${idToPass}, ${isBought})">
-                                ${isBought ? '<i class="fa-solid fa-check"></i>' : 'Bought'}
+                                ${isBought ? '<i class="fa-solid fa-check"></i>' : 'Purchased'}
                             </button>
                             <button class="delete-btn no-screenshot" onclick="deleteGroceryItem(${idToPass})"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
@@ -491,7 +528,7 @@
             const listElement = document.getElementById('bills-list');
             const homeListElement = document.getElementById('home-responsibilities-list');
             listElement.innerHTML = "";
-            homeListElement.innerHTML = ""; 
+            homeListElement.innerHTML = "";
 
             let pendingBillsCount = 0;
 
@@ -533,7 +570,7 @@
             }
 
             if (pendingBillsCount === 0) {
-                homeListElement.innerHTML = `<li style="color: #27ae60; text-align: center;"><strong>All caught up! No pending bills. 🎉</strong></li>`;
+                homeListElement.innerHTML = `<li style="color: #27ae60; text-align: center;"><strong>No pending bills..🎉🎉</strong></li>`;
             }
         }
 
