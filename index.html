@@ -90,7 +90,7 @@
         input[type="text"],
         input[type="number"],
         input[type="date"] {
-            width: 80%;
+            width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -135,6 +135,20 @@
 
         .delete-btn:hover {
             background-color: #c0392b;
+        }
+
+        .edit-btn {
+            background-color: #3498db;
+            padding: 8px 12px;
+            font-size: 1rem;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .edit-btn:hover {
+            background-color: #2980b9;
         }
 
         .home-button {
@@ -193,15 +207,15 @@
             margin-bottom: 20px;
         }
 
-        /* Bill Styles */
-        .bill-paid {
+        /* Status Styles for both Bills and Groceries */
+        .item-completed {
             background-color: #d4edda;
             border-color: #c3e6cb;
             text-decoration: line-through;
             color: gray;
         }
 
-        .bill-unpaid {
+        .item-pending {
             background-color: #fff3cd;
             border-color: #ffeeba;
             border-left: 5px solid #ffc107;
@@ -217,6 +231,28 @@
 
         .toggle-paid-btn {
             background-color: #27ae60;
+        }
+
+        /* Modal for editing */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 20% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -246,22 +282,20 @@
                     <option value="HYDE">Hyderabad</option>
                 </select>
             </div>
-            <div class="price-box">
-                <strong>Gold (24K - 10g):</strong> <span id="gold-price">Fetching...</span>
-            </div>
-            <div class="price-box silver-box">
-                <strong>Silver (1kg):</strong> <span id="silver-price">Fetching...</span>
+            <div class="price-box"><strong>Gold (24K - 10g):</strong> <span id="gold-price">Fetching...</span></div>
+            <div class="price-box silver-box"><strong>Silver (1kg):</strong> <span id="silver-price">Fetching...</span>
             </div>
             <p style="font-size: 0.8rem; color: gray;">*Prices update based on city selection.</p>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h2>🏠 Property & Responsibilities</h2>
+                <h2>🏠 Pending Responsibilities</h2>
             </div>
-            <ul>
-                <li><strong>Personal Loan EMI:</strong> Due on 5th</li>
-                <li><strong>Electricity Bill:</strong> Check on 10th</li>
+            <ul id="home-responsibilities-list">
+                <li style="color: gray;">Loading responsibilities...</li>
+                <!-- <li><strong>Personal Loan EMI:</strong> Due on 5th</li>
+                <li><strong>Electricity Bill:</strong> Check on 10th</li> -->
             </ul>
         </div>
     </div>
@@ -274,7 +308,7 @@
             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                 <input type="text" id="bill-name" placeholder="Bill Name (e.g. Electricity)">
                 <input type="number" id="bill-amount" placeholder="Amount (₹)">
-                <input type="number" id="bill-date" placeholder="Due Day (1-31)" min="1" max="31">
+                <input type="date" id="bill-date">
             </div>
             <button onclick="addBill()" style="width: 100%;"><i class="fa-solid fa-plus"></i> Add Monthly Bill</button>
             <ul style="overflow-y: auto; max-height: 50vh; margin-top: 20px;" id="bills-list">
@@ -293,7 +327,7 @@
                 <input type="text" id="item-input" placeholder="e.g., Onions, Dal, Milk...">
                 <button onclick="addGroceryItem()"><i class="fa-solid fa-plus"></i> Add</button>
             </div>
-            <ul style="overflow-y: auto; height: 40vh;" id="shopping-list">
+            <ul style="overflow-y: auto; height: 40vh; margin-top: 15px;" id="shopping-list">
             </ul>
         </div>
     </div>
@@ -304,26 +338,16 @@
                 <h2>💰 Loan EMI Calculator</h2>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <label><strong>Loan Amount (₹):</strong></label><br>
-                    <input type="number" id="loan-amount" placeholder="Enter Loan Amount" style="width: 100%;">
-                </div>
-                <div>
-                    <label><strong>Duration (Months):</strong></label><br>
-                    <input type="number" id="loan-duration" placeholder="Enter Duration in Months" style="width: 100%;">
-                </div>
-                <div>
-                    <label><strong>Int. Rate (%):</strong></label><br>
-                    <input type="number" id="loan-rate" placeholder="Enter Interest Rate" step="0.1"
-                        style="width: 100%;">
-                </div>
-                <div>
-                    <label><strong>Start Date:</strong></label><br>
-                    <input type="date" placeholder="Enter Start Date" id="loan-date" style="width: 100%;">
-                </div>
+                <div><label><strong>Loan Amount (₹):</strong></label><br><input type="number" id="loan-amount"
+                        placeholder="Enter Loan Amount" style="width: 100%;"></div>
+                <div><label><strong>Duration (Months):</strong></label><br><input type="number" id="loan-duration"
+                        placeholder="Enter Duration in Months" style="width: 100%;"></div>
+                <div><label><strong>Int. Rate (%):</strong></label><br><input type="number" id="loan-rate"
+                        placeholder="Enter Interest Rate" step="0.1" style="width: 100%;"></div>
+                <div><label><strong>Start Date:</strong></label><br><input type="date" placeholder="Enter Start Date"
+                        id="loan-date" style="width: 100%;"></div>
             </div>
             <div id="error" style="color: red; margin-top: 10px;"></div>
-
             <button onclick="calculateLoan()"
                 style="width: 100%; margin-top: 20px; font-size: 1.1rem; background-color: #3498db;"><i
                     class="fa-solid fa-calculator"></i> Calculate</button>
@@ -333,7 +357,6 @@
             <div class="card-header">
                 <h2>📊 Repayment Summary</h2>
             </div>
-
             <div class="summary-box" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div><span style="color: gray;">Monthly Payment</span><br><strong id="res-emi"
                         style="font-size: 1.2rem;">₹0</strong></div>
@@ -344,12 +367,9 @@
                 <div><span style="color: gray;">Pay-off Date</span><br><strong id="res-payoff"
                         style="font-size: 1.2rem;">-</strong></div>
             </div>
-
             <h3 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">Amortization Table</h3>
-
             <button id="toggle-table-btn" class="home-button" onclick="toggleTable()" style="margin-bottom: 15px;"><i
                     class="fa-solid fa-eye"></i> Show Table</button>
-
             <div id="amortization-container"
                 style="display: none; max-height: 400px; overflow-x: auto; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px;">
                 <table>
@@ -363,22 +383,35 @@
                             <th>Balance</th>
                         </tr>
                     </thead>
-                    <tbody id="amortization-body">
-                    </tbody>
+                    <tbody id="amortization-body"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Bill</h3>
+            <input type="hidden" id="edit-bill-key">
+            <label>Name:</label><br><input type="text" id="edit-bill-name" style="margin-bottom: 10px;"><br>
+            <label>Amount:</label><br><input type="number" id="edit-bill-amount" style="margin-bottom: 10px;"><br>
+            <label>Date:</label><br><input type="date" id="edit-bill-date" style="margin-bottom: 10px;"><br>
+            <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                <button onclick="saveEditBill()">Save Changes</button>
+                <button style="background-color: gray;" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <footer style="text-align: center; margin-top: 30px; color: gray; font-size: 0.8rem;">
-        &copy; 2024 Household Hub. All rights reserved. | Developed by Nikhil
+        &copy; 2024 Household Hub. All rights reserved. | Developed by Nikhil ❤️🖤 ANU
     </footer>
 
     <script>
-
         const firebaseConfig = {
             apiKey: "AIzaSyBwTn6T7mlw2pLPFnJrPFrBlPdhsOlo6iI",
             authDomain: "home-hub-c0bda.firebaseapp.com",
+            databaseURL: "https://home-hub-c0bda-default-rtdb.firebaseio.com",
             projectId: "home-hub-c0bda",
             storageBucket: "home-hub-c0bda.firebasestorage.app",
             messagingSenderId: "614688597228",
@@ -386,7 +419,6 @@
             measurementId: "G-48NNYSWN0K"
         };
 
-        // Check if Firebase has been configured by the user
         let useFirebase = true;
         let database;
 
@@ -394,8 +426,6 @@
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
             console.log("Firebase Connected!");
-        } else {
-            console.log("Using Local Memory. Add Firebase keys to enable Real-Time Syncing.");
         }
 
         let localItems = JSON.parse(localStorage.getItem('householdItems')) || [];
@@ -406,13 +436,23 @@
 
             if (dataObj) {
                 Object.keys(dataObj).forEach(key => {
-                    const itemName = useFirebase ? dataObj[key].name : dataObj[key];
+                    const item = useFirebase ? dataObj[key] : dataObj[key];
                     const idToPass = useFirebase ? `'${key}'` : key;
 
+                    let itemName = typeof item === 'string' ? item : item.name;
+                    let isBought = typeof item === 'object' && item.bought ? true : false;
+
                     const li = document.createElement('li');
+                    li.className = isBought ? "item-completed" : "";
+
                     li.innerHTML = `
-                        <span>${itemName}</span> 
-                        <button class="delete-btn no-screenshot" onclick="deleteGroceryItem(${idToPass})"><i class="fa-solid fa-trash-can"></i></button>
+                        <span style="font-weight: 500;">${itemName}</span> 
+                        <div style="display: flex; gap: 5px;">
+                            <button class="no-screenshot ${isBought ? 'toggle-paid-btn' : 'toggle-btn'}" onclick="toggleGroceryBought(${idToPass}, ${isBought})">
+                                ${isBought ? '<i class="fa-solid fa-check"></i>' : 'Bought'}
+                            </button>
+                            <button class="delete-btn no-screenshot" onclick="deleteGroceryItem(${idToPass})"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
                     `;
                     listElement.appendChild(li);
                 });
@@ -421,63 +461,79 @@
 
         function addGroceryItem() {
             const input = document.getElementById('item-input');
-            const newItem = input.value.trim();
-            if (newItem === "") return;
+            const newItemName = input.value.trim();
+            if (newItemName === "") return;
 
-            if (useFirebase) {
-                database.ref('groceries').push({ name: newItem });
-            } else {
-                localItems.push(newItem);
-                localStorage.setItem('householdItems', JSON.stringify(localItems));
-                renderGroceryUI(localItems);
-            }
+            const newItem = { name: newItemName, bought: false };
+
+            if (useFirebase) { database.ref('groceries').push(newItem); }
+            else { localItems.push(newItem); localStorage.setItem('householdItems', JSON.stringify(localItems)); renderGroceryUI(localItems); }
+
             input.value = "";
         }
 
-        function deleteGroceryItem(key) {
-            if (useFirebase) {
-                database.ref('groceries').child(key).remove();
-            } else {
-                localItems.splice(key, 1);
-                localStorage.setItem('householdItems', JSON.stringify(localItems));
-                renderGroceryUI(localItems);
-            }
+        function toggleGroceryBought(key, currentStatus) {
+            if (useFirebase) { database.ref('groceries').child(key).update({ bought: !currentStatus }); }
+            else { localItems[key].bought = !currentStatus; localStorage.setItem('householdItems', JSON.stringify(localItems)); renderGroceryUI(localItems); }
         }
 
-        if (useFirebase) {
-            database.ref('groceries').on('value', (snapshot) => renderGroceryUI(snapshot.val()));
-        } else {
-            renderGroceryUI(localItems);
+        function deleteGroceryItem(key) {
+            if (useFirebase) { database.ref('groceries').child(key).remove(); }
+            else { localItems.splice(key, 1); localStorage.setItem('householdItems', JSON.stringify(localItems)); renderGroceryUI(localItems); }
         }
+
+        if (useFirebase) { database.ref('groceries').on('value', (snapshot) => renderGroceryUI(snapshot.val())); }
+        else { renderGroceryUI(localItems); }
 
         let localBills = JSON.parse(localStorage.getItem('householdBills')) || [];
 
         function renderBillsUI(dataObj) {
             const listElement = document.getElementById('bills-list');
+            const homeListElement = document.getElementById('home-responsibilities-list');
             listElement.innerHTML = "";
+            homeListElement.innerHTML = ""; 
+
+            let pendingBillsCount = 0;
 
             if (dataObj) {
                 Object.keys(dataObj).forEach(key => {
                     const bill = useFirebase ? dataObj[key] : dataObj[key];
                     const idToPass = useFirebase ? `'${key}'` : key;
 
-                    const li = document.createElement('li');
-                    li.className = bill.paid ? "bill-paid" : "bill-unpaid";
+                    let displayDate = bill.date;
+                    if (bill.date && bill.date.includes("-")) {
+                        let d = new Date(bill.date);
+                        displayDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                    }
 
+                    const li = document.createElement('li');
+                    li.className = bill.paid ? "item-completed" : "item-pending";
                     li.innerHTML = `
                         <div style="display: flex; flex-direction: column;">
                             <strong>${bill.name}</strong>
-                            <span style="font-size: 0.85rem;">₹${bill.amount} | Due: ${bill.date}th</span>
+                            <span style="font-size: 0.85rem;">₹${bill.amount} | Due: ${displayDate}</span>
                         </div>
                         <div style="display: flex; gap: 5px;">
                             <button class="${bill.paid ? 'toggle-paid-btn' : 'toggle-btn'}" onclick="toggleBill(${idToPass}, ${bill.paid})">
-                                ${bill.paid ? '<i class="fa-solid fa-check"></i> Paid' : 'Mark Paid'}
+                                ${bill.paid ? '<i class="fa-solid fa-check"></i>' : 'Paid'}
                             </button>
+                            <button class="edit-btn" onclick="openEditModal(${idToPass}, '${bill.name}', '${bill.amount}', '${bill.date}')"><i class="fa-solid fa-pen"></i></button>
                             <button class="delete-btn" onclick="deleteBill(${idToPass})"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     `;
                     listElement.appendChild(li);
+
+                    if (!bill.paid) {
+                        pendingBillsCount++;
+                        const homeLi = document.createElement('li');
+                        homeLi.innerHTML = `<strong>${bill.name}:</strong> <span style="float:right;">Due ${displayDate}</span>`;
+                        homeListElement.appendChild(homeLi);
+                    }
                 });
+            }
+
+            if (pendingBillsCount === 0) {
+                homeListElement.innerHTML = `<li style="color: #27ae60; text-align: center;"><strong>All caught up! No pending bills. 🎉</strong></li>`;
             }
         }
 
@@ -490,44 +546,49 @@
 
             const newBill = { name: name, amount: amount, date: date, paid: false };
 
-            if (useFirebase) {
-                database.ref('bills').push(newBill);
-            } else {
-                localBills.push(newBill);
-                localStorage.setItem('householdBills', JSON.stringify(localBills));
-                renderBillsUI(localBills);
-            }
+            if (useFirebase) { database.ref('bills').push(newBill); }
+            else { localBills.push(newBill); localStorage.setItem('householdBills', JSON.stringify(localBills)); renderBillsUI(localBills); }
 
-            document.getElementById('bill-name').value = "";
-            document.getElementById('bill-amount').value = "";
-            document.getElementById('bill-date').value = "";
+            document.getElementById('bill-name').value = ""; document.getElementById('bill-amount').value = ""; document.getElementById('bill-date').value = "";
         }
 
         function toggleBill(key, currentStatus) {
-            if (useFirebase) {
-                database.ref('bills').child(key).update({ paid: !currentStatus });
-            } else {
-                localBills[key].paid = !currentStatus;
-                localStorage.setItem('householdBills', JSON.stringify(localBills));
-                renderBillsUI(localBills);
-            }
+            if (useFirebase) { database.ref('bills').child(key).update({ paid: !currentStatus }); }
+            else { localBills[key].paid = !currentStatus; localStorage.setItem('householdBills', JSON.stringify(localBills)); renderBillsUI(localBills); }
         }
 
         function deleteBill(key) {
-            if (useFirebase) {
-                database.ref('bills').child(key).remove();
-            } else {
-                localBills.splice(key, 1);
-                localStorage.setItem('householdBills', JSON.stringify(localBills));
-                renderBillsUI(localBills);
-            }
+            if (useFirebase) { database.ref('bills').child(key).remove(); }
+            else { localBills.splice(key, 1); localStorage.setItem('householdBills', JSON.stringify(localBills)); renderBillsUI(localBills); }
         }
 
-        if (useFirebase) {
-            database.ref('bills').on('value', (snapshot) => renderBillsUI(snapshot.val()));
-        } else {
-            renderBillsUI(localBills);
+        function openEditModal(key, name, amount, date) {
+            document.getElementById('edit-bill-key').value = key;
+            document.getElementById('edit-bill-name').value = name;
+            document.getElementById('edit-bill-amount').value = amount;
+            document.getElementById('edit-bill-date').value = date;
+            document.getElementById('editModal').style.display = "block";
         }
+
+        function closeEditModal() { document.getElementById('editModal').style.display = "none"; }
+
+        function saveEditBill() {
+            const key = document.getElementById('edit-bill-key').value;
+            const name = document.getElementById('edit-bill-name').value;
+            const amount = document.getElementById('edit-bill-amount').value;
+            const date = document.getElementById('edit-bill-date').value;
+
+            if (useFirebase) {
+                database.ref('bills').child(key).update({ name: name, amount: amount, date: date });
+            } else {
+                localBills[key].name = name; localBills[key].amount = amount; localBills[key].date = date;
+                localStorage.setItem('householdBills', JSON.stringify(localBills)); renderBillsUI(localBills);
+            }
+            closeEditModal();
+        }
+
+        if (useFirebase) { database.ref('bills').on('value', (snapshot) => renderBillsUI(snapshot.val())); }
+        else { renderBillsUI(localBills); }
 
         function showTab(tabId) {
             document.getElementById('home').style.display = 'none';
@@ -544,7 +605,6 @@
             else { t.style.display = 'none'; b.innerHTML = '<i class="fa-solid fa-eye"></i> Show Table'; }
         }
 
-        const METALS_API_KEY = "DEMO_MODE";
         async function fetchPrices() {
             const city = document.getElementById('city-select').value;
             try {
@@ -565,7 +625,7 @@
             let p = parseFloat(document.getElementById('loan-amount').value);
             let m = parseInt(document.getElementById('loan-duration').value);
             let r = parseFloat(document.getElementById('loan-rate').value) / 12 / 100;
-            let startDate = document.getElementById('loan-date').value;
+            let startDateStr = document.getElementById('loan-date').value;
 
             if (isNaN(p) || isNaN(m) || isNaN(r) || p <= 0 || m <= 0) { document.getElementById('error').innerText = "Enter valid numbers."; return; }
             document.getElementById('error').innerText = "";
@@ -573,34 +633,42 @@
             let emi = r === 0 ? p / m : p * r * Math.pow(1 + r, m) / (Math.pow(1 + r, m) - 1);
             let total = emi * m; let int = total - p;
 
-            document.getElementById('res-emi').innerText = `₹${emi.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('res-interest').innerText = `₹${int.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('res-total').innerText = `₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const config = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+            document.getElementById('res-emi').innerText = `₹${emi.toLocaleString('en-IN', config)}`;
+            document.getElementById('res-interest').innerText = `₹${int.toLocaleString('en-IN', config)}`;
+            document.getElementById('res-total').innerText = `₹${total.toLocaleString('en-IN', config)}`;
 
-            let bDate = startDate ? new Date(startDate) : null;
-            if (bDate) { let fDate = new Date(bDate); fDate.setMonth(fDate.getMonth() + m); document.getElementById('res-payoff').innerText = fDate.toLocaleDateString('en-GB'); }
+            let bDate = startDateStr ? new Date(startDateStr) : null;
+            if (bDate) { let fDate = new Date(startDateStr); fDate.setMonth(fDate.getMonth() + m); document.getElementById('res-payoff').innerText = fDate.toLocaleDateString('en-GB'); }
 
             let bal = p; let tbody = document.getElementById('amortization-body'); tbody.innerHTML = "";
             for (let i = 1; i <= m; i++) {
                 let iPay = bal * r; let pPay = emi - iPay; bal -= pPay; if (bal < 0) bal = 0;
-                let dTxt = "-"; if (bDate) { let pd = new Date(bDate); pd.setMonth(pd.getMonth() + i); dTxt = pd.toLocaleDateString('en-GB'); }
-                tbody.innerHTML += `<tr><td style="text-align:center;">${i.toString().padStart(2, '0')}</td><td style="text-align:left;">${dTxt}</td><td>${emi.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td><td>${iPay.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td><td>${pPay.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td><td>${bal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td></tr>`;
+                let dTxt = "-"; if (bDate) { let pd = new Date(bDate); pd.setMonth(pd.getMonth() + i); dTxt = pd.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' }); }
+                tbody.innerHTML += `<tr><td style="text-align:center;">${i.toString().padStart(2, '0')}</td><td style="text-align:left;">${dTxt}</td><td>${emi.toLocaleString('en-IN', config)}</td><td>${iPay.toLocaleString('en-IN', config)}</td><td>${pPay.toLocaleString('en-IN', config)}</td><td>${bal.toLocaleString('en-IN', config)}</td></tr>`;
             }
             document.getElementById('loan-results').style.display = 'block';
         }
 
         async function shareToWhatsApp() {
             try {
+                const hideBtns = document.querySelectorAll('.no-screenshot');
+                hideBtns.forEach(btn => btn.style.display = 'none');
+
                 const canvas = await html2canvas(document.getElementById('list-card'), { backgroundColor: "#ffffff", scale: 2 });
+
+                hideBtns.forEach(btn => btn.style.display = 'block');
+
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], 'grocery-list.jpg', { type: 'image/jpeg' });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Grocery List' }); }
-                    else { const a = document.createElement('a'); a.download = 'list.jpg'; a.href = canvas.toDataURL('image/jpeg'); a.click(); }
+                    else { const a = document.createElement('a'); a.download = 'grocery-list.jpg'; a.href = canvas.toDataURL('image/jpeg'); a.click(); }
                 }, 'image/jpeg');
-            } catch { alert("Failed to share."); }
+            } catch (err) { alert("Failed to share: " + err.message); }
         }
 
-        fetchPrices(); document.getElementById('loan-date').valueAsDate = new Date();
+        fetchPrices(); document.getElementById('loan-date').valueAsDate = new Date(); document.getElementById('bill-date').valueAsDate = new Date();
+
     </script>
 </body>
 
