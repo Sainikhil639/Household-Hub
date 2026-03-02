@@ -24,6 +24,7 @@
         h1 {
             text-align: center;
             color: #2c3e50;
+            margin: 10px 30px;
         }
 
         .container {
@@ -52,7 +53,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #eee;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             padding-bottom: 10px;
         }
 
@@ -90,7 +91,7 @@
         input[type="text"],
         input[type="number"],
         input[type="date"] {
-            width: 75%;
+            width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -105,6 +106,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 12px;
         }
 
         button:hover {
@@ -244,6 +246,7 @@
         .toggle-paid-btn {
             background-color: #27ae60;
         }
+
         .toggle-paid-btn:hover {
             background-color: #219150;
         }
@@ -298,7 +301,7 @@
 
     <h1>🏡 Household Hub</h1>
 
-    <div class="nav-buttons" style="text-align: center; margin-bottom: 20px;">
+    <div class="nav-buttons" style="text-align: center; margin-bottom: 10px;">
         <button class="home-button" onclick="showTab('home')"><i class="fa-solid fa-house"></i> Home</button>
         <button class="home-button" onclick="showTab('bills')"><i class="fa-solid fa-file-invoice-dollar"></i>
             Bills</button>
@@ -342,13 +345,24 @@
             <div class="card-header">
                 <h2>📅 Monthly Bills & Subscriptions</h2>
             </div>
-            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <!-- <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                 <input type="text" id="bill-name" placeholder="Bill Name (e.g. Electricity)">
                 <input type="number" id="bill-amount" placeholder="Amount (₹)">
                 <input type="date" id="bill-date">
+                <button onclick="addBill()"
+                    style="width: 100%; margin-top: 10px; font-size: 1.1rem; background-color: #3498db;"><i
+                        class="fa-solid fa-plus"></i></button>
+            </div> -->
+            
+            <div style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center;">
+                <input style="flex: 3; min-width: 0; padding: 10px 8px;" type="text" id="bill-name" placeholder="Bill Name">
+                <input style="flex: 2; min-width: 0; padding: 10px 8px;" type="number" id="bill-amount" placeholder="₹ Amount">
+                <input style="flex: 3; min-width: 0; padding: 10px 5px;" type="date" id="bill-date">
+                <button onclick="addBill()" style="flex: 1; padding: 12px 2px; margin: 0; background-color: #27ae60; display: flex; justify-content: center; align-items: center;"><i class="fa-solid fa-plus"></i></button>
             </div>
-            <button onclick="addBill()" style="width: 100%; margin-top: 20px; font-size: 1.1rem; background-color: #3498db;"><i class="fa-solid fa-plus"></i> Add Monthly Bill</button>
-            <ul style="overflow-y: auto; max-height: 50vh; margin-top: 20px;" id="bills-list">
+
+            <div id="error-bill" style="display: none; color: red; margin-top: 10px;"></div>
+            <ul style="overflow-y: auto;max-height: 43vh;margin: 0px 0px;" id="bills-list">
             </ul>
         </div>
     </div>
@@ -361,7 +375,7 @@
                         style="font-size: 1.2rem;"></i> Share</button>
             </div>
             <div style="display: flex; gap: 10px;">
-                <input type="text" id="item-input" placeholder="e.g., Onions, Dal, Milk...">
+                <input style="width: 75%;" type="text" id="item-input" placeholder="e.g., Onions, Dal, Milk...">
                 <button onclick="addGroceryItem()"><i class="fa-solid fa-plus"></i> Add</button>
             </div>
             <ul style="overflow-y: auto; height: 40vh; margin-top: 15px;" id="shopping-list">
@@ -384,7 +398,7 @@
                 <div><label><strong>Start Date:</strong></label><br><input type="date" placeholder="Enter Start Date"
                         id="loan-date" style="width: 100%;"></div>
             </div>
-            <div id="error" style="color: red; margin-top: 10px;"></div>
+            <div id="error-loan" style="color: red; margin-top: 10px; display: none;"></div>
             <button onclick="calculateLoan()"
                 style="width: 100%; margin-top: 20px; font-size: 1.1rem; background-color: #3498db;"><i
                     class="fa-solid fa-calculator"></i> Calculate</button>
@@ -579,7 +593,14 @@
             const amount = document.getElementById('bill-amount').value;
             const date = document.getElementById('bill-date').value;
 
-            if (!name || !amount || !date) { alert("Please fill all bill fields"); return; }
+            if (!name || !amount || !date) {
+                document.getElementById('error-bill').innerText = "Please fill all bill fields";
+                document.getElementById('error-bill').style.display = "block";
+                return;
+            }
+            else {
+                document.getElementById('error-bill').style.display = "none";
+            }
 
             const newBill = { name: name, amount: amount, date: date, paid: false };
 
@@ -664,8 +685,12 @@
             let r = parseFloat(document.getElementById('loan-rate').value) / 12 / 100;
             let startDateStr = document.getElementById('loan-date').value;
 
-            if (isNaN(p) || isNaN(m) || isNaN(r) || p <= 0 || m <= 0) { document.getElementById('error').innerText = "Enter valid numbers."; return; }
-            document.getElementById('error').innerText = "";
+            if (isNaN(p) || isNaN(m) || isNaN(r) || p <= 0 || m <= 0) {
+                document.getElementById('error-loan').style.display = "block";
+                document.getElementById('error-loan').innerText = "Enter valid numbers.";
+                return;
+            }
+            document.getElementById('error-loan').style.display = "none";
 
             let emi = r === 0 ? p / m : p * r * Math.pow(1 + r, m) / (Math.pow(1 + r, m) - 1);
             let total = emi * m; let int = total - p;
@@ -704,7 +729,30 @@
             } catch (err) { alert("Failed to share: " + err.message); }
         }
 
-        fetchPrices(); document.getElementById('loan-date').valueAsDate = new Date(); document.getElementById('bill-date').valueAsDate = new Date();
+        document.getElementById("item-input").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addGroceryItem();
+            }
+        });
+
+        document.getElementById("bill-name").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addBill();
+            }
+        });
+
+        document.getElementById("bill-amount").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addBill();
+            }
+        });
+
+        fetchPrices();
+        document.getElementById('loan-date').valueAsDate = new Date();
+        document.getElementById('bill-date').valueAsDate = new Date();
 
     </script>
 </body>
